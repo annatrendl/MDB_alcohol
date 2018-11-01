@@ -3,11 +3,11 @@ library(data.table)
 library(stringi)
 library(lubridate)
 #setwd("C:/Anna/MDB")
-load("MDB.RData")
+load("MDB10.RData")
 
-#MDB_all <- MDB
+#MDB10_all <- MDB10
 #select random sample
-#MDB <- MDB_all[sample.int(nrow(MDB_all),20000),]
+#MDB10 <- MDB10_all[sample.int(nrow(MDB10_all),20000),]
 
 #get pubs dataset
 allpubs <- data.table(read.csv("allpubs.csv", header = FALSE))
@@ -15,7 +15,7 @@ allpubs[, V2 := tolower(V2)]
 allpubs[, twowords := grepl(" ", V2)]
 
 #get unique transactions. we'll create an alcohol flag for these and then merge them back to the original dataset
-unique_transactions_all <- data.table(description = unique(MDB$Transaction.Description))
+unique_transactions_all <- data.table(description = unique(MDB10$Transaction.Description))
 
 #unqiue pub names
 pubs <- unique(allpubs[twowords == TRUE,V2])
@@ -65,10 +65,10 @@ unique_transactions_all[nonalc == FALSE, alc := stri_detect_regex(description, p
 unique_transactions_all[is.na(alc), alc := FALSE]
 
 #merge it back with the alcohol flag
-MDB <- merge(MDB, unique_transactions_all[, c("description", "alc")], by.x = "Transaction.Description",
+MDB10 <- merge(MDB10, unique_transactions_all[, c("description", "alc")], by.x = "Transaction.Description",
                by.y = "description", all.x = TRUE)
 
-MDB[, Transaction.Date := ymd(Transaction.Date)]
+MDB10[, Transaction.Date := ymd(Transaction.Date)]
 
-save.image("MDB_from_Neil.RData")
+save.image("MDB10_from_Neil.RData")
 
