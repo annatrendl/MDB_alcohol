@@ -48,14 +48,22 @@ nonalcohol <- c("tesco", "stores", "group", "uber", "withdrawal", "sainsb",
                 "google", "restaurants", "pizza", "starbucks", "next", "superstore",
                 "garden", "nandos", "subway", "primark", "greggs", "argos", 
                 "superdrug", "costa", "amazon", "internet", "coffee", "cafe","caffe",
-                "donalds", "spotify", "smith", "manger", "kfc", "ticket",
+                "donalds", "spotify", "smith", "manger", "kfc", "ticket","mcdonalds",
                 "boots", "domestic", "food", "grocery","h&m","pharmacy",
                 "ikea", "poundland", "cineworld", "lewis", "dental", "debenhams",
                 "parking", "wilko", "halfords", "zara", "iceland", "homebase",
                 "wagamama", " atm ", " fee ", "int'l", "mortgage", "weightwatchers",
                 "energy", "standing order", "national trust", "steak", "burger king",
                 "post office", "lloyds", "virgin active", "fitness", "co-op",
-                "theatre", "park view nursery", "farm park", "health", "hamburgers")
+                "theatre", "park view nursery", "farm park", "health", "hamburgers",
+                "cinemas", "itunes","amazon.co.uk","itunes.com", "hotel","marketplace",
+                "sainsbury's",  "marks&spencer", "lewis", "interest", "morrison",
+                "water", "mandate", "halifax", "hsbc", "insurance","tfl.gov.uk/cp",
+                "www.just", "lottery", "connect", "paypal", "council", "pets",
+                "www.skybet.com", "vodafone", "barclays", "barclaycard", "tv",
+                "currys", "bbc", "loan", "restaurant", "netflix.com", "trains",
+                "rail","bargains","oyster", "barclay", "refund", "betfair",
+                "warehouse","ocado")
 
 #create non-alcohol flag, we can exclude these when matching the pub names
 unique_transactions_all[, nonalc := stri_detect_regex(description, paste(nonalcohol, collapse = "|"))]
