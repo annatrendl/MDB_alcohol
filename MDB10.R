@@ -2,21 +2,23 @@ rm(list = ls())
 library(data.table)
 library(stringi)
 library(lubridate)
-setwd("C:/Anna/MDB")
+setwd("C:/Anna/MDB_alcohol")
 load("MDB10.RData")
 
-MDB10_all <- MDB10
-#select random sample
-MDB10 <- MDB10_all[sample.int(nrow(MDB10_all),1000000),]
+# MDB10_all <- MDB10
+# #select random sample
+# MDB10 <- MDB10_all[sample.int(nrow(MDB10_all),100000),]
 # save(MDB10, file = "MDB10random.RData")
 
 #get pubs dataset
 allpubs <- data.table(read.csv("allpubs.csv", header = FALSE))
 allpubs[, V2 := tolower(V2)]
 allpubs[, twowords := grepl(" ", V2)]
+allpubs <- allpubs[,.N, .(V2)]
+allpubs <- allpubs[N>1,]
 
 #get unique transactions. we'll create an alcohol flag for these and then merge them back to the original dataset
-unique_transactions_all <- data.table(description = unique(MDB10$Transaction.Description))
+#unique_transactions_all <- data.table(description = unique(MDB10$Transaction.Description))
 
 #unqiue pub names
 pubs <- unique(allpubs[twowords == TRUE,V2])
@@ -27,7 +29,7 @@ pubs <- gsub("\\[","", pubs)
 pubs <- gsub("\\]","", pubs)
 pubs <- gsub("\\\\","", pubs)
 #add space before and after
-pubs <- paste("", pubs, "")
+#pubs <- paste("", pubs, "")
 
 
 
