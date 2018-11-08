@@ -4,6 +4,7 @@ library(stringi)
 library(lubridate)
 setwd("C:/Anna/MDB_alcohol")
 load("MDB10.RData")
+#load("MDB10random.RData")
 
 # MDB10_all <- MDB10
 # #select random sample
@@ -12,16 +13,23 @@ load("MDB10.RData")
 
 #get pubs dataset
 allpubs <- data.table(read.csv("allpubs.csv", header = FALSE))
+#convert to lowercase
 allpubs[, V2 := tolower(V2)]
-allpubs[, twowords := grepl(" ", V2)]
+#frequency of each name
 allpubs <- allpubs[,.N, .(V2)]
+#keep the ones that 
 allpubs <- allpubs[N>1,]
+allpubs[, twowords := grepl(" ", V2)]
+#keep the two words ones, and filter the one word ones - delete those that are very common words 
+#and can be street names or other businesses etc
+todelete <- c("angel", "swan", "railway", "trinity", "alexandra", "victoria", "castle", "ship",
+              "albion", "silk", "broadway", "red", "fuel", "nine", "windsor", "home", "olivers",
+              "grove", "trafalgar", "boutique", "pure", "curve", "waterloo")
+allpubs[twowords == FALSE, keep := !grepl(paste(todelete, collapse = "|"), V2)]
 
-#get unique transactions. we'll create an alcohol flag for these and then merge them back to the original dataset
-#unique_transactions_all <- data.table(description = unique(MDB10$Transaction.Description))
-
-#unqiue pub names
-pubs <- unique(allpubs[twowords == TRUE,V2])
+#unique pub names, plus add "pub", "inn", "tavern", "tap", "malt", "brewery", "arms", 
+pubs <- c(allpubs[twowords == TRUE,V2], allpubs[keep == TRUE,V2],
+          "pub", "inn", "tavern", "tap", "malt", "brewery", "arms")
 #remove characters that will give us trouble
 pubs <- gsub("\\(","", pubs)
 pubs <- gsub("\\)","", pubs)
@@ -29,7 +37,7 @@ pubs <- gsub("\\[","", pubs)
 pubs <- gsub("\\]","", pubs)
 pubs <- gsub("\\\\","", pubs)
 #add space before and after
-#pubs <- paste("", pubs, "")
+#pubs <- paste0("\\<",pubs,"\\>")
 
 
 
@@ -67,12 +75,14 @@ nonalcohol <- c("tesco", "stores", "group", "uber", "withdrawal", "sainsb",
                 "rail","bargains","oyster", "barclay", "refund", "betfair",
                 "warehouse","ocado")
 
+
+
 #create non-alcohol flag, we can exclude these when matching the pub names
-unique_transactions_all[, nonalc := stri_detect_regex(description, paste(nonalcohol, collapse = "|"))]
+MDB10[, nonalc := stri_detect_regex(Transaction.Description, paste(nonalcohol, collapse = "|"))]
 #create alcohol flag for subset of data
-unique_transactions_all[nonalc == FALSE, alc := stri_detect_regex(description, paste(pubs, collapse = "|"))]
+MDB10[nonalc == FALSE, alc := stri_detect_regex(Transaction.Description, paste(pubs, collapse = "|"))]
 #set alcohol = false for the nonalc = true entries
-unique_transactions_all[is.na(alc), alc := FALSE]
+MDB10[is.na(alc), alc := FALSE]
 
 #merge it back with the alcohol flag
 MDB10 <- merge(MDB10, unique_transactions_all[, c("description", "alc")], by.x = "Transaction.Description",
