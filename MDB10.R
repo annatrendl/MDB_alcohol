@@ -3,12 +3,12 @@ library(data.table)
 library(stringi)
 library(lubridate)
 setwd("C:/Anna/MDB_alcohol")
-load("MDB10.RData")
-#load("MDB10random.RData")
+#load("MDB10.RData")
+load("MDB10random.RData")
 
 # MDB10_all <- MDB10
 # #select random sample
-# MDB10 <- MDB10_all[sample.int(nrow(MDB10_all),100000),]
+# MDB10 <- MDB10_all[sample.int(nrow(MDB10_all),1000000),]
 # save(MDB10, file = "MDB10random.RData")
 
 #get pubs dataset
@@ -74,29 +74,42 @@ nonalcohol <- c("tesco", "stores", "group", "uber", "withdrawal", "sainsb",
                 "currys", "bbc", "loan", "restaurant", "netflix.com", "trains",
                 "rail","bargains","oyster", "barclay", "refund", "betfair",
                 "warehouse","ocado")
+#only match entire words
+nonalcohol <- paste0("\\b", nonalcohol, "\\b")
+pubs <-  paste0("\\b", pubs, "\\b")
 
-
-
+####################NON-ALCOHOL FLAG###########################
 #create non-alcohol flag, we can exclude these when matching the pub names
-MDB10[, nonalc := stri_detect_regex(Transaction.Description, paste(nonalcohol, collapse = "|"))]
+#MDB10[, nonalc := stri_detect_regex(Transaction.Description, paste(nonalcohol, collapse = "|"))]
+#150 seconds
+
+MDB10[, nonalc := 0]
+  for (i in 1:length(nonalcohol)) {
+    MDB10[nonalc == 0, nonalc := nonalc + as.numeric(stri_detect_regex(Transaction.Description, nonalcohol[i]))]
+    #print(i)
+  }
+#55 seconds - 3 times faster
+
+
+####################ALCOHOL FLAG###########################
+
+
 #create alcohol flag for subset of data
-MDB10[nonalc == FALSE, alc := stri_detect_regex(Transaction.Description, paste(pubs, collapse = "|"))]
-#set alcohol = false for the nonalc = true entries
-MDB10[is.na(alc), alc := FALSE]
+# system.time(MDB10[nonalc == 0, 
+#                   alco := stri_detect_regex(Transaction.Description,paste(pubs, collapse = "|"))])
+# MDB10[is.na(alco), alco := 1]
+#282 seconds with 100k entries
 
-#merge it back with the alcohol flag
-MDB10 <- merge(MDB10, unique_transactions_all[, c("description", "alc")], by.x = "Transaction.Description",
-               by.y = "description", all.x = TRUE)
+MDB10[, alc := 0]
+system.time(
+for (i in 1:length(pubs)) {
+  MDB10[nonalc == 0 & alc == 0, alc := alc + as.numeric(stri_detect_regex(Transaction.Description, pubs[i]))]
+print(i)
+})
 
-MDB10[, Transaction.Date := ymd(Transaction.Date)]
-
-save.image("MDB10.RData")
-
-
-
-
-
-
-
+#119 seconds with 100k entries
+#1232.05 (21 minutes) seconds with 1 million entries
+#demonstrate that it is the same result
+#all.equal(as.numeric(MDB10$alco), MDB10$alc)
 
 
