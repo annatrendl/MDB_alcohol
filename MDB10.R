@@ -81,14 +81,15 @@ pubs <-  paste0("\\b", pubs, "\\b")
 ####################NON-ALCOHOL FLAG###########################
 #create non-alcohol flag, we can exclude these when matching the pub names
 #MDB10[, nonalc := stri_detect_regex(Transaction.Description, paste(nonalcohol, collapse = "|"))]
-#150 seconds
+#150 seconds with 1 million
 
 MDB10[, nonalc := 0]
-  for (i in 1:length(nonalcohol)) {
+  system.time(
+    for (i in 1:length(nonalcohol)) {
     MDB10[nonalc == 0, nonalc := nonalc + as.numeric(stri_detect_regex(Transaction.Description, nonalcohol[i]))]
     #print(i)
-  }
-#55 seconds - 3 times faster
+  })
+#55 seconds with 1 million - 3 times faster
 
 
 ####################ALCOHOL FLAG###########################
@@ -96,9 +97,10 @@ MDB10[, nonalc := 0]
 
 #create alcohol flag for subset of data
 # system.time(MDB10[nonalc == 0, 
-#                   alco := stri_detect_regex(Transaction.Description,paste(pubs, collapse = "|"))])
-# MDB10[is.na(alco), alco := 1]
+#                    alco := stri_detect_regex(Transaction.Description,paste(pubs, collapse = "|"))])
+#  MDB10[is.na(alco), alco := 1]
 #282 seconds with 100k entries
+#47 minutes with 1 million
 
 MDB10[, alc := 0]
 system.time(
