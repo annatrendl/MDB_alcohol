@@ -2,9 +2,9 @@ rm(list = ls())
 library(data.table)
 library(stringi)
 library(lubridate)
-setwd("C:/Anna/MDB_alcohol")
-#load("MDB10.RData")
-load("MDB10random.RData")
+#setwd("C:/Anna/MDB_alcohol")
+load("MDB10.RData")
+#load("MDB10random.RData")
 
 # MDB10_all <- MDB10
 # #select random sample
@@ -114,4 +114,4 @@ print(i)
 #demonstrate that it is the same result
 #all.equal(as.numeric(MDB10$alco), MDB10$alc)
 
-
+save(MDB10, file="MDB10_alc.RData")
