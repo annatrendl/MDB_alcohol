@@ -5,25 +5,29 @@ library(lubridate)
 setwd("C:/Anna/MDB_alcohol")
 load("MDB10.RData")
 
-MDB10 <- data.table(MDB10[, Transaction.Description])
+#MDB10 <- data.table(MDB10[, c("Transaction.Date", "Transaction.Description")])
+
+#remove those with no info
+MDB10 <- MDB10[!(Transaction.Description %in% c("<MDBREMOVED>", "<mdbremoved>", "<mdbremoved> - chq")),]
+MDB10[, Transaction.Description := tolower(Transaction.Description)]
 
 nonalcohol <- c("tesco", "stores", "group", "uber", "withdrawal", "sainsb",
                 "asda", "coop", "lidl", "aldi", "waitrose", "spencer", "spar",
-                "petrol", "shell", "esso", "morrisons", "hotel", "travel",
+                "petrol", "shell", "esso", "morrisons", "hotel", "travel","sainsburys",
                 "google", "restaurants", "pizza", "starbucks", "next", "superstore",
                 "garden", "nandos", "subway", "primark", "greggs", "argos", 
                 "superdrug", "costa", "amazon", "internet", "coffee", "cafe","caffe",
                 "donalds", "spotify", "smith", "manger", "kfc", "ticket","mcdonalds",
-                "boots", "domestic", "food", "grocery","h&m","pharmacy",
+                "boots", "domestic", "food", "grocery","h&m","pharmacy","costco",
                 "ikea", "poundland", "cineworld", "lewis", "dental", "debenhams",
-                "parking", "wilko", "halfords", "zara", "iceland", "homebase",
-                "wagamama", " atm ", " fee ", "int'l", "mortgage", "weightwatchers",
+                "parking", "wilko", "halfords", "zara", "iceland", "homebase","giffgaff",
+                "wagamama", "atm", "fee", "int'l", "mortgage", "weightwatchers",
                 "energy", "standing order", "national trust", "steak", "burger king",
-                "post office", "lloyds", "virgin active", "fitness", "co-op",
-                "theatre", "park view nursery", "farm park", "health", "hamburgers",
+                "post office", "lloyds", "virgin active", "fitness", "co-op","virgin media",
+                "theatre", "park view nursery", "farm park", "health", "hamburgers","virgin mobile",
                 "cinemas", "itunes","amazon.co.uk","itunes.com", "hotel","marketplace",
                 "sainsbury's",  "marks&spencer", "lewis", "interest", "morrison","nespresso",
-                "water", "mandate", "halifax", "hsbc", "insurance","tfl.gov.uk/cp",
+                "water", "mandate", "halifax", "hsbc", "insurance","tfl.gov.uk/cp","hotels",
                 "www.just", "lottery", "connect", "paypal", "council", "pets", "tea",
                 "www.skybet.com", "vodafone", "barclays", "barclaycard", "tv","newsagent",
                 "currys", "bbc", "loan", "restaurant", "netflix.com", "trains","cleaners","cleaner",
@@ -39,16 +43,19 @@ nonalcohol <- c("tesco", "stores", "group", "uber", "withdrawal", "sainsb",
                 "bengal", "thai", "pull and bear", "clinic", "gallery", "globe london", "ferries",
                 "sheilas'", "tyre", "hall", "convenience", "climbing", "chinese", "indian", "collectors",
                 "supervalu", "fish", "newsagents", "bells brook", "shoes", "bow bells", "charity",
-                "boutique", "movie")
+                "boutique", "movie", "t-mobile", "thank", "specsavers", "save", "usage", "faster",
+                "sky", "bill", "life", "tax", "express", "capital", "transfer", "charge", "b365",
+                "automated", "retail", "limited", "o2", "bac", "british")
 
+#Using regular expressions would be better, but it takes more than twice as long as using stri_detect_fixed
 nonalcohol <- paste0("\\b", nonalcohol, "\\b")
-
 MDB10[, nonalc := 0]
-system.time(
   for (i in 1:length(nonalcohol)) {
-    MDB10[nonalc == 0, nonalc := nonalc + as.numeric(stri_detect_regex(MDB10, nonalcohol[i]))]
+    MDB10[nonalc == 0, nonalc := nonalc + as.numeric(stri_detect_regex(Transaction.Description, nonalcohol[i]))]
     print(i)
-  })
+  }
+
+#for a 10% sample (26 million), this takes about 40 minutes
 
 toadd <- c("inn","arms","arm","bar","bars","tavern","tav","brewhouse","conservative","olde","public house",
            "sports","pub","pubs","social club", "ale", "ales", "tap", "taphouse", "malt", "malthouse","beer",
@@ -62,34 +69,42 @@ toadd <- c("inn","arms","arm","bar","bars","tavern","tav","brewhouse","conservat
            "barrel", "thistle", "oak", "greyhound", "chequers", "alchemist", "botanist", "prince of",
            "the victoria", "the ox", "beehive", "golden bee", "honey bee", "the hop", "goose", "swan",
            "the star", "star and", "star &", "brewers", "and castle", "& castle", "the castle", "the wharf",
-           "cross keys", "the cross", "the duke", "flying horse", "the railway", "the mill", "dog and",
+           "cross keys", "the cross", "the duke", "the railway", "the mill", "dog and", "horse",
            "the albion", "robin hood", "anchor", "the boat", "boathouse", "the duck", "the ship", "ship and",
            "the kingfisher", "half moon", "free house", "the old", "the bear", "and bear", "smokehouse",
            "smoke house", "the cat", "the shakespeare", "the globe", "crowns", "the cow", "boozy cow",
-           "spotted cow", "dun cow", "cow and calf", "cow & calf", "wig", "coach", "tree", "the union",
-           "earl of", "wheel", "the dolphin", "the wellington", "bridge house", "the folly", "marquis",
+           "spotted cow", "dun cow", "calf", "wig", "coach", "tree", "the union","trees",
+           "earl of", "wheel", "the dolphin", "wellington", "bridge house", "the folly", "marquis",
            "the yard", "royal albert", "smugglers", "queen of", "the engine", "the full moon", "thieves",
            "the shack", "the bank", "the regent", "the temple", "the talbot", "the admiral", "old crown",
-           "corner house", "punch bowl", "fire station", "the pit", "the mayflower", "the quay", 
+           "corner house", "punch bowl", "fire station", "the pit", "the mayflower", "the quay", "queen victoria",
            "the courtyard", "the cambridge", "the dragon", "the hawk", "bunch of grapes", "the snug",
-           "sailor", "the social", "waxy o'connors", "waxy oconnors", "harp", "pack horse", "platform",
-           "prospect of whitby", "pheasant", "horses", "blue boar", "squirrel", "smoking goat",
-           "thirsty goat", "the goat", "goat &", "queen adelaide", "the fable", "the pig", "bells", "the fleece",
+           "sailor", "the social", "waxy o'connors", "waxy oconnors", "harp", "platform","roof","grapes",
+           "prospect of whitby", "pheasant", "horses", "blue boar", "squirrel", "smoking goat","the phoenix",
+           "thirsty", "the goat", "goat &", "queen adelaide", "the fable", "the pig", "bells", "the fleece",
            "the hope", "foresters", "packhorse","the lighthouse", "hand", "ivy house", "the vault",
-           "the navigation", "greene king")
+           "the navigation", "greene king", "wetherspoon", "wetherspoons", "yates", "yates's", "yatess",
+           "hobgoblin", "slug and lettuce", "stonegate", "queen elizabeth", "royal george","stables",
+           "seven kings", "hole in the", "angelic", "priory", "dukes", "anthologist", "marquess","taver",
+           "cocks", "bull", "cricketers", "distiller", "duchess", "prince albert", "brasserie", "regent",
+           "the queens", "the flag", "brewer", "aragon", "woolpack", "rise 46", "the bat", "the mulberry",
+           "flying pig", "treehouse", "old mill", "draft house", "hammer & pincers", "minnow", "the sun",
+           "wine", "coopers", "under the", "marston", "drinks", "old manor", "spotted", "port royal",
+           "yeates", "mudlark", "of kings", "maypole", "willow walk", "cellar", "waggon", "token house")
 compound <- c(paste("red", c("light","rover", "deer", "cow", "fox")),
-              paste("white", c("horse", "hart", "heart", "swan", "rabbit", "cross", "rose", "bear")),
+              paste("white", c("hart", "heart", "swan", "rabbit", "cross", "rose", "bear", "house", "lion")),
               paste("the green", c("goose", "dragon", "man")), 
               paste("the royal", c("oak", "exchange", "william", "george", "scot", "standard", "pug", "sun", "barn")),
-              paste("black", c("horse", "swan", "bull", "cock", "friar", "bear", "lion", "boy","heart", "fox")), 
+              paste("black", c("swan", "cock", "friar", "bear", "lion", "boy","heart", "fox", "bear", "dog")), 
               paste(c("lazy","running", "snooty", "hyndland", "stretton"),"fox"))
 
-alc <- paste0("\\b", c(toadd, compound), "\\b")
+alcohol <- c(paste0("\\b", c(toadd[!grepl("&", toadd)], compound), "\\b"), toadd[grepl("&", toadd)])
+#there's something weird going on with "&" so I'm gonna remove the \\b from these otherwise it doesnt match them
 
 MDB10[, alc := 0]
-system.time(
-  for (i in 1:length(pubs)) {
-    MDB10[nonalc == 0 & alc == 0, alc := alc + as.numeric(stri_detect_regex(MDB10, pubs[i]))]
+  for (i in 1:length(alcohol)) {
+    MDB10[nonalc == 0 & alc == 0,  alc := alc + as.numeric(stri_detect_regex(Transaction.Description, alcohol[i]))]
     print(i)
-  })
+  }
 
+#this takes about 40 mins too
