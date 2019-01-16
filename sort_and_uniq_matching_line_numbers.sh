@@ -1,2 +1,3 @@
 #!/bin/bash
-cat matching_line_numbers.csv | sort | uniq > "sorted_matching_line_numbers.csv"
+cat data_alcohol_matches.csv | sort | uniq > "data_alcohol_matches_uniq.csv"
+
