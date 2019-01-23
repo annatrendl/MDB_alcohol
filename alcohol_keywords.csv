@@ -9,7 +9,6 @@
 \bconservative\b
 \bolde\b
 \bpublic house\b
-\bsports\b
 \bpub\b
 \bpubs\b
 \bsocial club\b
@@ -46,8 +45,6 @@
 \band cock\b
 \bcock and\b
 \bthe black\b
-\boneills\b
-\bo'neills\b
 \bthe king\b
 \bthe kings\b
 \bking and\b
@@ -76,6 +73,7 @@
 \balchemist\b
 \bbotanist\b
 \bprince of\b
+\bprincess of\b
 \bthe victoria\b
 \bthe ox\b
 \bbeehive\b
@@ -91,12 +89,14 @@
 \bthe castle\b
 \bthe wharf\b
 \bcross keys\b
+\bcrosse\b
 \bthe cross\b
 \bthe duke\b
 \bthe railway\b
 \bthe mill\b
 \bdog and\b
 \bhorse\b
+\bpitcher and piano\b
 \bthe albion\b
 \brobin hood\b
 \banchor\b
@@ -134,6 +134,7 @@
 \bbridge house\b
 \bthe folly\b
 \bmarquis\b
+\bbrass monkey\b
 \bthe yard\b
 \broyal albert\b
 \bsmugglers\b
@@ -203,6 +204,7 @@
 \bqueen elizabeth\b
 \broyal george\b
 \bstables\b
+\bflag\b
 \bseven kings\b
 \bhole in the\b
 \bangelic\b
@@ -249,6 +251,18 @@
 \bcellar\b
 \bwaggon\b
 \btoken house\b
+\bcrown rivers\b
+\biguanas\b
+\bbrownswood\b
+\bsaracens\b
+\bbrewdog\b
+\bswans\b
+\bcrown bow\b
+\bthe angel\b
+\baeronaut\b
+\btelegraph\b
+\bgooseberry bush\b
+\bfox on\b
 \bred light\b
 \bred rover\b
 \bred deer\b
@@ -256,6 +270,7 @@
 \bred fox\b
 \bwhite hart\b
 \bwhite heart\b
+\bwhite harte\b
 \bwhite swan\b
 \bwhite rabbit\b
 \bwhite cross\b
@@ -290,15 +305,22 @@
 \bsnooty fox\b
 \bhyndland fox\b
 \bstretton fox\b
-\b& crown\b
-\bcrown &\b
-\bplough &\b
-\b& cock\b
-\bcock &\b
-\bpitcher & piano\b
-\bfox &\b
-\b& fox\b
-\bstar &\b
-\b& castle\b
-\bgoat &\b
-\bhammer & pincers\b
+& crown
+crown &
+plough &
+& cock
+cock &
+pitcher & piano
+fox &
+& fox
+star &
+& castle
+goat &
+hammer & pincers
+frog &
+affleck & brown
+rack & tenter
+pig &
+pipe &
+neill's
+neills

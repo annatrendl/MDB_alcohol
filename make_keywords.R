@@ -2,21 +2,11 @@ rm(list = ls())
 library(data.table)
 library(stringi)
 library(lubridate)
-setwd("C:/Anna/MDB_alcohol")
-load("MDB10.RData")
+#setwd("C:/Anna/MDB_alcohol")
 
-#MDB10 <- data.table(MDB10[, c("Transaction.Date", "Transaction.Description")])
-
-#Use the auto and manual tag to eliminate about 2/3 of data - purchases that don't have these tags 
-#are definitely not alcohol-related, so we only have to check the resulting 1/3 of the data
-MDB10[, nonalc := 0]
-MDB10[!(Auto.Purpose.Tag.Name %in% c("Cash", "No Tag", "Lunch or Snacks","Alcohol", "Dining and drinking", "Dining or Going Out") & 
-        Manual.Tag.Name %in% c("Cash", "No Tag", "Lunch or Snacks","Alcohol", "Dining and drinking", "Dining or Going Out")), nonalc := 1]
-
-#remove those with no info
-#MDB10 <- MDB10[!(Transaction.Description %in% c("<MDBREMOVED>", "<mdbremoved>", "<mdbremoved> - chq")),]
-MDB10[, Transaction.Description := tolower(Transaction.Description)]
-
+# 
+# Write non-alcohol keywords to noalcohol_keywords.csv
+#
 
 nonalcohol <- c("tesco", "stores", "group", "uber", "withdrawal", "sainsb",
                 "asda", "coop", "lidl", "aldi", "waitrose", "spencer", "spar",
@@ -59,13 +49,10 @@ nonalcohol <- c("tesco", "stores", "group", "uber", "withdrawal", "sainsb",
 nonalcohol <- paste0("\\b", nonalcohol, "\\b")
 write(nonalcohol, file="noalcohol_keywords.csv")
 
-for (i in 1:length(nonalcohol)) {
-  MDB10[nonalc == 0, nonalc := nonalc + as.numeric(stri_detect_regex(Transaction.Description, nonalcohol[i]))]
-  print(i)
-}
 
-#########################ALCOHOL################
-
+#
+# Write alcohol keywords to alcohol_keywords.csv
+#
 toadd <- c("inn","arms","arm","bar","bars","tavern","tav","brewhouse","conservative","olde","public house",
            "pub","pubs","social club", "ale", "ales", "tap", "taphouse", "malt", "malthouse","beer",
            "brew", "stag","hound" ,"head", "and crown", "& crown", "crown &", "crown and", "the crown","beerhouse",
@@ -111,12 +98,9 @@ compound <- c(paste("red", c("light","rover", "deer", "cow", "fox")),
 
 alcohol <- c(paste0("\\b", c(toadd[!grepl("&", toadd)], compound), "\\b"), toadd[grepl("&", toadd)],
              "neill's", "neills")
-#there's something weird going on with "&" so I'm gonna remove the \\b from these otherwise it doesnt match them
-
+# "&" is not a word character, and \b is for _word_ boundaries, so \b does not work with keywords with an "&"
 write(alcohol, file="alcohol_keywords.csv")
 
-MDB10[, alc := 0]
-for (i in 1:length(alcohol)) {
-  MDB10[nonalc == 0 & alc == 0,  alc := alc + as.numeric(stri_detect_regex(Transaction.Description, alcohol[i]))]
-  print(i)
-}
+
+
+
